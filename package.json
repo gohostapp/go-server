@@ -1,0 +1,27 @@
+{
+  "name": "csgo-ondemand",
+  "version": "1.0.0",
+  "description": "Project creates on demand CsGo server on AWS. ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Csgo",
+    "Dedicated",
+    "Server",
+    "On",
+    "Demand",
+    "Free"
+  ],
+  "author": "Tarun Mittal",
+  "license": "ISC",
+  "dependencies": {
+    "cluster": "^0.7.7",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "express-body-parser-validator": "^1.0.2",
+    "os": "^0.1.1",
+    "path": "^0.12.7"
+  }
+}

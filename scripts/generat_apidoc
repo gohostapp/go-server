@@ -1,0 +1,1 @@
+sudo apidoc  -f ".js" -i ../ -o public/apidoc/ -e node_modules/ -e public

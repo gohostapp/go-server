@@ -17,6 +17,7 @@
   "author": "Tarun Mittal",
   "license": "ISC",
   "dependencies": {
+    "aws-sdk": "^2.944.0",
     "cluster": "^0.7.7",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",

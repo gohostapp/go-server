@@ -1,14 +1,14 @@
-var cluster = require('cluster');
+let cluster = require('cluster');
 require('dotenv').config()
 
 const { env } = require('process');
 
 if(cluster.isMaster) {
-    var numWorkers = require('os').cpus().length;
+    let numWorkers = require('os').cpus().length;
 
     console.log('Master cluster setting up ' + numWorkers + ' workers...');
 
-    for(var i = 0; i < numWorkers; i++) {
+    for(let i = 0; i < numWorkers; i++) {
         cluster.fork();
     }
 
@@ -22,13 +22,13 @@ if(cluster.isMaster) {
         cluster.fork();
     });
 } else {
-    var express = require('express');
-    var path = require('path');
-    var app = express();
+    let express = require('express');
+    let path = require('path');
+    let app = express();
 
 
 
-    var consts = require('./lib/consts.js');
+    let consts = require('./constants/consts.js');
 
     //folder to 
     app.use("/public", express.static(path.join(__dirname, 'public')));
@@ -43,10 +43,10 @@ if(cluster.isMaster) {
     app.use("/aws", require('./app/awsRoutes'));
 
 
-    var server = app.listen(process.env.PORT, function () {
+    let server = app.listen(process.env.PORT, function () {
 
-        var host = server.address().address;
-        var port = server.address().port;
+        let host = server.address().address;
+        let port = server.address().port;
 
         console.log("Csgo OnDemand server is running on port "+port);
 

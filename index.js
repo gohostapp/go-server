@@ -39,7 +39,7 @@ if(cluster.isMaster) {
         next()
     });
     
-    
+    app.use('/api/documentation', express.static(__dirname + '/public/apidoc'));
     app.use("/aws", require('./app/awsRoutes'));
 
 

@@ -1,3 +1,54 @@
+
+/**
+ * @apiDefine SuccessResponse
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *          "status": "success"
+ *          "response_code": 200
+ *          "response_message": ""
+ *     }
+ *
+ */
+
+/**
+ * @apiDefine EntityNotFound
+ *
+ * @apiErrorExample Not Found:
+ *     HTTP/1.1 404 Not Found
+ *     {
+ *       "status": "no_result_found"
+ *       "response_code": 404
+ *       "response_message": "No result obtained from DB for given entity, based on provided filters."
+ *     }
+ */
+
+/**
+ * @apiDefine MissingReqParam
+ *
+ * @apiErrorExample Missing Param:
+ *     HTTP/1.1 400 Missing Param
+ *     {
+ *       "response_code": 400
+ *       "response_message": [
+ *                  "One or more request parameters missing"
+ *          ]
+ *     }
+ */
+
+
+/**
+ * @apiDefine Error
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Error
+ *     {
+ *       "status": "error"
+ *       "response_code": 403
+ *       "response_message": "There was an error performing the action. Please try again"
+ *     }
+ */
+
 exports.CSGO_AMI_ID = "ami-0f0579361559c5377";
 
 exports.RESPONSE_SUCCESS = { text: "success", code: 200 };

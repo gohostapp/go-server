@@ -35,6 +35,19 @@ let bodyParserValidator = require('express-body-parser-validator').hasReqParam
 * @apiSuccess {String} response_message Empty or error message.
 
 * @apiUse SuccessResponse
+* @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *          "status": "success",
+ *          "response_code": 200,
+ *          "response_message": "",
+ *          "data": {
+ *              "instance_id": "i-xxxxxxxxxxxxxxxxx",
+ *              "private_key": "-----BEGIN RSA PRIVATE KEY----xxx-----END RSA PRIVATE KEY-----,
+ *              "message" : ""Please note down the instance id and private key for future references ............."
+ *           }
+ * 
+ *     }
 * @apiUse Error
 * @apiUse MissingReqParam
 *
@@ -49,6 +62,17 @@ router.post('/start-server', [express.json(), bodyParserValidator(["steam_server
         util.sendError(err, req, res);
     });
 });
+
+router.get('/servers', [express.json()], function (req, res) {
+    awsService.listCsGoServers().then((data) => {
+        let result = util.getResponseObject(consts.RESPONSE_SUCCESS);
+        result.data = data;
+        util.sendResponse(result, req, res);
+    }, (err) => {
+        util.sendError(err, req, res);
+    });
+});
+
 
 
 module.exports = router;

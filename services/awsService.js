@@ -10,7 +10,7 @@ let createInstance = (data) => {
         `/home/ubuntu/launch-server ${data.steam_server_token}`,
     ];
     let  instanceParams = {
-        ImageId: consts.CSGO_AMI_ID, 
+        ImageId: process.env.CSGO_AMI_ID, 
         InstanceType: 't2.micro',
         KeyName: keyPairName,
         UserData: Buffer.from(commands.join("\n")).toString('base64'),
@@ -92,5 +92,20 @@ let createSecurityGroup = () => {
     });
 }
 
+let listCsGoServers = () => {
+    let params = {};
+    return ec2.describeInstances(params).promise()
+    .then((data) => {
+        console.log("INSTANCES ARE");
+        console.log(data);
+        return data;
+    })
+    .catch((err) => {
+        //if group not found, return null, and handle subsequently
+        return null;
+    });
+}
+
 module.exports.createInstance = createInstance;
+module.exports.listCsGoServers = listCsGoServers;
 

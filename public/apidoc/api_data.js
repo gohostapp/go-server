@@ -105,6 +105,11 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n     \"status\": \"success\",\n     \"response_code\": 200,\n     \"response_message\": \"\",\n     \"data\": {\n         \"instance_id\": \"i-xxxxxxxxxxxxxxxxx\",\n         \"private_key\": \"-----BEGIN RSA PRIVATE KEY----xxx-----END RSA PRIVATE KEY-----,\n         \"message\" : \"\"Please note down the instance id and private key for future references .............\"\n      }\n\n}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
           "content": "HTTP/1.1 200 OK\n{\n     \"status\": \"success\"\n     \"response_code\": 200\n     \"response_message\": \"\"\n}",
           "type": "json"
         }

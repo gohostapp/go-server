@@ -103,13 +103,13 @@ if(cluster.isMaster) {
     
 
     app.get('/', function(req, res){
-        console.log(req.user)
+     //   console.log(req.user)
         res.render('index', { user: req.user });
       });
       
     app.get('/account', ensureAuthenticated, function(req, res){
         console.log("-----");
-//        console.log(req.user);
+        console.log(req.user);
         res.render('account', { user: req.user });
     });
     

@@ -11,14 +11,9 @@ function toLowerCase(val) {
 
 // create a schema
 var userSchema = new Schema({
-    email:  {type: String, trim: true, set: toLowerCase},
-    name: {type: String,  trim: true},
-    photo_url: {type: String,  trim: true},
     created_at: {type: Date, required: true, default: Date.now},
     updated_at: {type: Date, required: true, default: Date.now},
-    vendor_id: {type: String,  trim: true},
-    vendor: {type: String, required: true,  enum: ["steam", "facebook", "google"]},
-    vendor_data: {type: Schema.Types.Mixed, default: {}}
+    steam: {type: Schema.Types.Mixed, default: {}}
 });
 
 
@@ -29,9 +24,6 @@ userSchema.pre('save', function(next) {
     next();
 });
 
-userSchema.index({vendor_id: 1, vendor: 1}, {unique: true});
-userSchema.index({vendor_id: 1});
-userSchema.index({email: 1});
-
+userSchema.index({"steam.steamid": 1}, {unique: true});
 
 var User = exports.User  = mongoose.model('User', userSchema);

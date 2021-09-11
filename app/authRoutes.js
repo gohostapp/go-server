@@ -1,7 +1,7 @@
 var express = require('express')
   , router = express.Router()
   , passport = require('passport');
-let mongo = require('../models/mongo')
+let userService = require("../services/userService")
 
 // GET /auth/steam
 //   Use passport.authenticate() as route middleware to authenticate the
@@ -22,17 +22,26 @@ router.get('/steam',
 router.get('/steam/return',
   // Issue #37 - Workaround for Express router module stripping the full url, causing assertion to fail 
     function(req, res, next) {
-        console.log("I AM HERE !!! LET US SEEE ----- ")
-        console.log(req.url)
-        console.log(req.originalUrl)
         req.url = req.originalUrl;
         next();
     }, 
     passport.authenticate('steam', { failureRedirect: '/' }),
     function(req, res) {
-   //   console.log(req.user);
-      console.log("IN HERE FINAL REDIREC")
-      res.redirect('/');
+      //  console.log(req.user);
+        console.log("IN HERE FINAL REDIREC")
+        userService.authUser(req.user._json)
+        .then(user => {
+          console.log("ALL DONE ", user)
+            req.user._id = user._id;
+            res.redirect('/');
+        })
+        .catch((err) => {
+          console.log("GOT ERROR ", err)
+            res.redirect('/');
+        });
+      
 });
+
+
 
 module.exports = router;

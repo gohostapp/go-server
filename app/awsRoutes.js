@@ -53,7 +53,7 @@ let bodyParserValidator = require('express-body-parser-validator').hasReqParam
 *
 * @apiSampleRequest off
 */
-router.post('/start-server', [express.json(), bodyParserValidator(["steam_server_token", "hostname", "rcon_password", "sv_password"])], function (req, res) {
+router.post('/start-server', [express.json(), bodyParserValidator(["steam_server_token", "hostname", "rcon_password", "sv_password", "tickrate"])], function (req, res) {
     awsService.createInstance(req.body).then((data) => {
         let result = util.getResponseObject(consts.RESPONSE_SUCCESS);
         result.data = data;

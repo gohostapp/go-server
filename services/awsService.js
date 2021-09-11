@@ -6,8 +6,9 @@ let createInstance = (data) => {
     let keyPairName = "csgo_server_key_"+new Date().getTime();
     let commands = [
         '#!/usr/bin/env bash',
-        `/home/ubuntu/updateAutoExec "${data.hostname}" "${data.rcon_password}" "${data.sv_password}"`,
-        `/home/ubuntu/launch-server ${data.steam_server_token}`,
+        `/home/ubuntu/updateAutoExec "${data.hostname || "GoHost Private Server"}" "${data.rcon_password || "password"}" "${data.sv_password || ""}"`,
+        `/home/ubuntu/update-server`,
+        `/home/ubuntu/launch-server ${data.steam_server_token} ${data.tickrate}`,
     ];
     let  instanceParams = {
         ImageId: process.env.CSGO_AMI_ID, 

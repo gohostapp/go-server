@@ -2,13 +2,6 @@ var mongoose = require('mongoose');
 
 var Schema = mongoose.Schema;
 
-function toLowerCase(val) {
-    if (!val)
-        return val;
-    else
-        return val.toLowerCase();
-}
-
 // create a schema
 var userSchema = new Schema({
     created_at: {type: Date, required: true, default: Date.now},

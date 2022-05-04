@@ -1,7 +1,7 @@
 let express = require('express');
 const router = express.Router();
 const awsService = require('../services/awsService');
-const util = require('../lib/Utils');
+const util = require('../lib/utils');
 const consts = require('../constants/consts');
 let bodyParserValidator = require('express-body-parser-validator').hasReqParam
 

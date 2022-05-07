@@ -1,6 +1,8 @@
 var express = require('express')
   , router = express.Router()
   , passport = require('passport');
+  var GoogleStrategy = require( 'passport-google-oauth2' ).Strategy;
+
 let userService = require("../services/userService")
 
 // GET /auth/steam
@@ -12,7 +14,13 @@ router.get('/steam',
   passport.authenticate('steam', { failureRedirect: '/' }),
   function(req, res) {
     res.redirect('/');
-  });
+});
+
+router.get('/steam',
+  passport.authenticate('google', { failureRedirect: '/' }),
+  function(req, res) {
+    res.redirect('/');
+});
 
 // GET /auth/steam/return
 //   Use passport.authenticate() as route middleware to authenticate the
@@ -29,9 +37,8 @@ router.get('/steam/return',
     function(req, res) {
       //  console.log(req.user);
         console.log("IN HERE FINAL REDIREC")
-        userService.authUser(req.user._json)
+        userService.authUser(req.user._json, "steam")
         .then(user => {
-          console.log("ALL DONE ", user)
             req.user._id = user._id;
             res.redirect('/');
         })
@@ -42,6 +49,26 @@ router.get('/steam/return',
       
 });
 
+router.get('/google',
+passport.authenticate('google', { scope:[ 'email', 'profile' ] }),
+  function(req, res) {
+    res.redirect('/');
+});
+
+
+
+
+router.get('/google/return',
+  // Issue #37 - Workaround for Express router module stripping the full url, causing assertion to fail 
+    function(req, res, next) {
+        req.url = req.originalUrl;
+        next();
+    }, 
+    passport.authenticate( 'google'),
+    function(req, res) {
+        //console.log(req.user);
+        res.redirect('/');
+});
 
 
 module.exports = router;

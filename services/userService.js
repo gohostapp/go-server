@@ -1,12 +1,10 @@
 let userDao = require("../dao/user");
 
-let authUser = (steamData) => {
-    return userDao.getUserBySteam(steamData)
-    .then((user) => {
-        console.log("FETCHING FROM DB ", user);
+let authUser = (data, vendor, done) => {
+    let identifier = vendor == "google" ? data.email : data.steamid; 
+    return userDao.getUserByIdentifier(identifier).then((user) => {
         if(!user){
-            console.log("CREATING ON")
-            return userDao.createUser(steamData);
+            return userDao.createUser(data, vendor);
         }else
             return user;
     })

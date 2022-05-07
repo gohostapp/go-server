@@ -9,6 +9,7 @@ let mongoOptions = {
     autoIndex: true,
     useNewUrlParser: true
 };
+
 mongoose.connect(process.env.MONGODB_URI, mongoOptions, function(err) {
     if (err) {
         console.error(err);

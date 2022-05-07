@@ -26,49 +26,12 @@ if(cluster.isMaster) {
     let path = require('path');
     let app = express();
     let session = require('express-session');
-    let SteamStrategy = require('./lib/strategy').Strategy;
-    let passport = require('passport');
     var redisStore = require('connect-redis')(session);
     var redisUtil = require('./lib/redis.js');
+    var auth = require('./lib/auth.js').initPassport();;
+    let passport = require('passport');
 
-    // Passport session setup.
-    //   To support persistent login sessions, Passport needs to be able to
-    //   serialize users into and deserialize users out of the session.  Typically,
-    //   this will be as simple as storing the user ID when serializing, and finding
-    //   the user by ID when deserializing.  However, since this example does not
-    //   have a database of user records, the complete Steam profile is serialized
-    //   and deserialized.
-    passport.serializeUser(function(user, done) {
-        done(null, user);
-    });
     
-    passport.deserializeUser(function(obj, done) {
-        done(null, obj);
-    });
-
-
-    // Use the SteamStrategy within Passport.
-    //   Strategies in passport require a `validate` function, which accept
-    //   credentials (in this case, an OpenID identifier and profile), and invoke a
-    //   callback with a user object.
-    passport.use(new SteamStrategy({
-        returnURL: 'http://localhost:8080/auth/steam/return',
-        realm: 'http://localhost:8080/',
-        apiKey: '93278D41738170B4C02EAD893116495A'
-    },
-    function(identifier, profile, done) {
-        // asynchronous verification, for effect...
-        process.nextTick(function () {
-
-        // To keep the example simple, the user's Steam profile is returned to
-        // represent the logged-in user.  In a typical application, you would want
-        // to associate the Steam account with a user record in your database,
-        // and return that user instead.
-        profile.identifier = identifier;
-            return done(null, profile);
-        });
-    }
-    ));
 
     app.use("/public", express.static(path.join(__dirname, 'public')));
 
@@ -89,6 +52,7 @@ if(cluster.isMaster) {
         saveUninitialized: false,
         rolling: true
     }));
+    
     app.use(passport.initialize());
     app.use(passport.session());
 
@@ -108,8 +72,6 @@ if(cluster.isMaster) {
       });
       
     app.get('/account', ensureAuthenticated, function(req, res){
-        console.log("-----");
-        console.log(req.user);
         res.render('account', { user: req.user });
     });
     
@@ -128,7 +90,7 @@ if(cluster.isMaster) {
     });
 
     function ensureAuthenticated(req, res, next) {
-        console.log("CHECKING ", req.user)
+        console.log("CHECKING ", req.user._id)
         if (req.isAuthenticated()){ 
             return next(); 
         }

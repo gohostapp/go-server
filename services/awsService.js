@@ -1,8 +1,11 @@
 const AWS = require('aws-sdk');
+const req = require('express/lib/request');
 const ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
 let consts = require("../constants/consts")
+const hostDao = require("../dao/host")
 
-let createInstance = (data) => {
+let createInstance = (req, res) => {
+    let data = req.body;
     let keyPairName = "csgo_server_key_"+new Date().getTime();
     let commands = [
         '#!/usr/bin/env bash',
@@ -25,7 +28,15 @@ let createInstance = (data) => {
             instanceParams["SecurityGroupIds"] = [securityGroupId]
             return ec2.runInstances(instanceParams).promise()
             .then((instanceData) => {
-                return {instance_id : instanceData["Instances"][0].InstanceId, private_key : keyData.KeyMaterial, message : consts.CREATE_SERVER_MESSAGE};
+                return hostDao.createServer({
+                    user : req.user._id,
+                    instance_id : instanceData["Instances"][0].InstanceId,
+                    private_key : keyData.KeyMaterial,
+                    is_active : true,
+                    launch_params : data,
+                }).then( host => {
+                    return {instance_id : instanceData["Instances"][0].InstanceId, message : consts.CREATE_SERVER_MESSAGE};
+                })
             })
         })
     })

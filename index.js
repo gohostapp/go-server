@@ -28,6 +28,7 @@ if(cluster.isMaster) {
     let session = require('express-session');
     var redisStore = require('connect-redis')(session);
     var redisUtil = require('./lib/redis.js');
+    var util = require('./lib/utils');
     var auth = require('./lib/auth.js').initPassport();;
     let passport = require('passport');
 
@@ -47,7 +48,7 @@ if(cluster.isMaster) {
     app.use(session({
         secret: 'unbreakable-secret',
         name: 'sid',
-        store: new redisStore({host: process.env.REDIS_URI, client: client, ttl: 1200}),
+        store: new redisStore({host: process.env.REDIS_URI, client: client, ttl: 3600}),
         resave: false,
         saveUninitialized: false,
         rolling: true
@@ -71,7 +72,7 @@ if(cluster.isMaster) {
         res.render('index', { user: req.user });
       });
       
-    app.get('/account', ensureAuthenticated, function(req, res){
+    app.get('/account', util.ensureAuthenticated, function(req, res){
         res.render('account', { user: req.user });
     });
     
@@ -88,12 +89,5 @@ if(cluster.isMaster) {
         console.log("Csgo OnDemand server is running on port "+port);
 
     });
-
-    function ensureAuthenticated(req, res, next) {
-        console.log("CHECKING ", req.user._id)
-        if (req.isAuthenticated()){ 
-            return next(); 
-        }
-        res.redirect('/');
-    }
+     
 }

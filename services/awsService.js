@@ -3,6 +3,8 @@ const req = require('express/lib/request');
 const ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
 let consts = require("../constants/consts")
 const hostDao = require("../dao/host")
+let HttpError = require("../errors/httpError");
+let httpStatusCodes = require("../constants/httpStatusCodes")
 
 let createInstance = (req, res) => {
     let data = req.body;
@@ -35,7 +37,7 @@ let createInstance = (req, res) => {
                     is_active : true,
                     launch_params : data,
                 }).then( host => {
-                    return {instance_id : instanceData["Instances"][0].InstanceId, message : consts.CREATE_SERVER_MESSAGE};
+                    return {instance_id : instanceData["Instances"][0].InstanceId};
                 })
             })
         })
@@ -107,11 +109,14 @@ let createSecurityGroup = () => {
 let listCsGoServers = (req) => {
     return hostDao.fetchUserServers(req.user._id)
     .then((hosts) => {
-        console.log("FOUND HOSTS ", hosts.length)
         if(!hosts || hosts.length == 0)
-            return [];
+            throw new HttpError(httpStatusCodes.NOT_FOUND, { response: 'No Active server foundD' });
         else{
-            let instanceIds = hosts.map(host => host.instance_id);
+            return hosts;
+        }
+    })
+    .then((hosts)=>{
+        let instanceIds = hosts.map(host => host.instance_id);
             let params = {
                 InstanceIds: instanceIds,
                 Filters: [{
@@ -125,7 +130,7 @@ let listCsGoServers = (req) => {
                 let resultServers = [];
                 let updatePromises = [];
                 for(var j=0;j<hosts.length;j++){
-                    let host = hosts[j].sanitized();
+                    let host = hosts[j]
                     for(var i=0;i<data.Reservations.length;i++){
                         if(data.Reservations[i].Instances && data.Reservations[i].Instances.length > 0){
                             for(var k=0;k<data.Reservations[i].Instances.length;k++){
@@ -135,7 +140,7 @@ let listCsGoServers = (req) => {
                                         host.public_ip = instance.PublicIpAddress;
                                         updatePromises.push(hostDao.updateServerIp(host._id, instance.PublicIpAddress));
                                     }
-                                    resultServers.push(host);
+                                    resultServers.push(host.sanitized());
                                 }
                             }
                         }
@@ -143,16 +148,37 @@ let listCsGoServers = (req) => {
                 }
                 return resultServers;
             })
-            .catch((err) => {
-                //if group not found, return null, and handle subsequently
-                console.log("GOT ERROR ", err)
-                return Promise.reject(new HttpError(consts.BAD_REQUEST, err), null)
-            });
+    })
+    .catch((err) => {
+        //if group not found, return null, and handle subsequently
+        return Promise.reject(err, null)
+    });
+}
+
+let stopServer = (req) => {
+    let hostId = req.body.server_id;
+    return hostDao.findServerById(hostId)
+    .then((host) => {
+        if(host && host.user == req.user._id && host.is_active){
+            return host;            
+        }else{
+            throw new HttpError(consts.BAD_REQUEST, { response: 'No Active server found. Invalid ID' });
         }
     })
-   
+    .then((host) =>{
+        let  params = {InstanceIds: [host.instance_id]}
+        return ec2.terminateInstances(params).promise()
+    })
+    .then(() => {
+        return hostDao.stopServer(hostId);
+    })
+    .catch((err) => {
+        //if group not found, return null, and handle subsequently
+        return Promise.reject(new HttpError(consts.BAD_REQUEST, err), null)
+    });
 }
 
 module.exports.createInstance = createInstance;
 module.exports.listCsGoServers = listCsGoServers;
+module.exports.stopServer = stopServer;
 

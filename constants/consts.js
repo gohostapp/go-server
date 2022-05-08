@@ -26,7 +26,7 @@
 /**
  * @apiDefine MissingReqParam
  *
- * @apiErrorExample Missing Param:
+ * @apiErrorExample Bad Request:
  *     HTTP/1.1 400 Missing Param
  *     {
  *       "response_code": 400
@@ -41,13 +41,26 @@
  * @apiDefine Error
  *
  * @apiErrorExample Error-Response:
- *     HTTP/1.1 403 Error
+ *     HTTP/1.1 500 Error
+ *     {
+ *       "status": "error"
+ *       "response_code": 500
+ *       "response_message": "Internal Server Error"
+ *     }
+ */
+
+/**
+ * @apiDefine Forbidden
+ *
+ * @apiErrorExample Forbidden:
+ *     HTTP/1.1 403 Forbidden
  *     {
  *       "status": "error"
  *       "response_code": 403
- *       "response_message": "There was an error performing the action. Please try again"
+ *       "response_message": "Unauthorized Request"
  *     }
  */
+
 
 exports.CSGO_AMI_ID = "ami-0f0579361559c5377";
 

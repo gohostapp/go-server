@@ -48,7 +48,7 @@ if(cluster.isMaster && process.env.NODE_ENV !== "dev") {
     app.use(session({
         secret: 'unbreakable-secret',
         name: 'sid',
-        store: new redisStore({host: process.env.REDIS_URI, client: client, ttl: 3600}),
+        store: new redisStore({host: process.env.REDIS_URI, client: client, ttl: 36000}),
         resave: false,
         saveUninitialized: false,
         rolling: true
@@ -58,7 +58,7 @@ if(cluster.isMaster && process.env.NODE_ENV !== "dev") {
     app.use(passport.session());
 
     app.use('/api/documentation', express.static(__dirname + '/public/apidoc'));
-    app.use("/aws", require('./app/awsRoutes'));
+    app.use("/server", require('./app/awsRoutes'));
     app.use("/auth", require('./app/authRoutes'));
     
   

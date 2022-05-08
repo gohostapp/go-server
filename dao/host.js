@@ -13,3 +13,11 @@ module.exports.fetchUserServers = function(user_id){
 module.exports.updateServerIp = (id, publicIp) => {
     return mongo.Host.findByIdAndUpdate(id, {$set : {public_ip : publicIp}});
 }
+
+module.exports.findServerById = (id) => {
+    return mongo.Host.findById(id);
+}
+
+module.exports.stopServer = (id) => {
+    return mongo.Host.findByIdAndUpdate(id, {$set : {is_active : false}});
+}

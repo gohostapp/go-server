@@ -29,6 +29,8 @@ hostSchema.methods.sanitized = function () {
     var data = this.toObject();
     delete data["private_key"];
     delete data["updated_at"];
+    delete data["instance_id"];
+    delete data["user"];
     return data;
 };
 

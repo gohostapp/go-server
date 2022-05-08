@@ -64,7 +64,7 @@ router.post('/start-server', [util.ensureAuthenticated, express.json(), bodyPars
 });
 
 router.get('/servers', [util.ensureAuthenticated, express.json()], function (req, res) {
-    awsService.listCsGoServers().then((data) => {
+    awsService.listCsGoServers(req).then((data) => {
         let result = util.getResponseObject(consts.RESPONSE_SUCCESS);
         result.data = data;
         util.sendResponse(result, req, res);

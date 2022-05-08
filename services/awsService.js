@@ -104,18 +104,53 @@ let createSecurityGroup = () => {
     });
 }
 
-let listCsGoServers = () => {
-    let params = {};
-    return ec2.describeInstances(params).promise()
-    .then((data) => {
-        console.log("INSTANCES ARE");
-        console.log(data);
-        return data;
+let listCsGoServers = (req) => {
+    return hostDao.fetchUserServers(req.user._id)
+    .then((hosts) => {
+        console.log("FOUND HOSTS ", hosts.length)
+        if(!hosts || hosts.length == 0)
+            return [];
+        else{
+            let instanceIds = hosts.map(host => host.instance_id);
+            let params = {
+                InstanceIds: instanceIds,
+                Filters: [{
+                    "Name" : "instance-state-name",
+                     "Values" : ["pending", "running"]
+                }]
+            };
+            //add filters to params to fetch running instances only 
+            return ec2.describeInstances(params).promise()
+            .then((data) => {
+                let resultServers = [];
+                let updatePromises = [];
+                for(var j=0;j<hosts.length;j++){
+                    let host = hosts[j].sanitized();
+                    for(var i=0;i<data.Reservations.length;i++){
+                        if(data.Reservations[i].Instances && data.Reservations[i].Instances.length > 0){
+                            for(var k=0;k<data.Reservations[i].Instances.length;k++){
+                                let instance = data.Reservations[i].Instances[k];
+                                if(instance.InstanceId  == host.instance_id){
+                                    if(!host.public_ip && instance.PublicIpAddress){
+                                        host.public_ip = instance.PublicIpAddress;
+                                        updatePromises.push(hostDao.updateServerIp(host._id, instance.PublicIpAddress));
+                                    }
+                                    resultServers.push(host);
+                                }
+                            }
+                        }
+                    }
+                }
+                return resultServers;
+            })
+            .catch((err) => {
+                //if group not found, return null, and handle subsequently
+                console.log("GOT ERROR ", err)
+                return Promise.reject(new HttpError(consts.BAD_REQUEST, err), null)
+            });
+        }
     })
-    .catch((err) => {
-        //if group not found, return null, and handle subsequently
-        return null;
-    });
+   
 }
 
 module.exports.createInstance = createInstance;

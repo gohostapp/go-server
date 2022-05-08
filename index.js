@@ -3,7 +3,7 @@ require('dotenv').config()
 
 const { env } = require('process');
 
-if(cluster.isMaster) {
+if(cluster.isMaster && process.env.NODE_ENV !== "dev") {
     let numWorkers = require('os').cpus().length;
 
     console.log('Master cluster setting up ' + numWorkers + ' workers...');

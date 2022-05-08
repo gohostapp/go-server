@@ -25,4 +25,11 @@ hostSchema.pre('save', function(next) {
 hostSchema.index({"is_active": 1});
 hostSchema.index({"user": 1});
 
+hostSchema.methods.sanitized = function () {
+    var data = this.toObject();
+    delete data["private_key"];
+    delete data["updated_at"];
+    return data;
+};
+
 var Host = exports.Host  = mongoose.model('Host', hostSchema);

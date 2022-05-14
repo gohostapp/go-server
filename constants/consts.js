@@ -89,4 +89,7 @@ exports.CSGO_SECURITY_GROUP_IP_PERMISSIONS = [
 
 exports.SECURITY_GROUP_NAME = "CsGoDedicatedServer";
 
-exports.CREATE_SERVER_MESSAGE = "Please note down the instance id and private key for future references. You can ssh into the instance using this private key. THIS WILL NOT BE AVAILABLE IN THE FUTURE. Please Note it now. To know how to connect to instance, follow this guide: https://docs.aws.amazon.com/quickstarts/latest/vmlaunch/step-2-connect-to-instance.html"
+//exports.CREATE_SERVER_MESSAGE = "Please note down the instance id and private key for future references. You can ssh into the instance using this private key. THIS WILL NOT BE AVAILABLE IN THE FUTURE. Please Note it now. To know how to connect to instance, follow this guide: https://docs.aws.amazon.com/quickstarts/latest/vmlaunch/step-2-connect-to-instance.html"
+
+
+exports.ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS.split(",")

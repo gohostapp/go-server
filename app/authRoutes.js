@@ -67,7 +67,7 @@ router.get('/google/return',
     passport.authenticate( 'google'),
     function(req, res) {
         //console.log(req.user);
-        res.redirect('/');
+        res.redirect(process.env.DASHBOARD_URI);
 });
 
 

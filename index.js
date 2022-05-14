@@ -83,11 +83,6 @@ if(cluster.isMaster && process.env.NODE_ENV !== "dev") {
          if (req.method === 'OPTIONS') {
             res.statusCode = 204;
             return res.end();
-        }else if(reqPath.indexOf('/config') == 0 && isBrowser){
-            var response = util.getResponseObject(consts.RESPONSE_SUCCESS);
-            response.config = util.getWebClientConfig(reqOrigin);
-            res.send(response);
-            next();
         }else if(reqPath.indexOf('/api/documentation') == 0){
             if(req.query.password === 'kn1t1fy' ||
                   (reqPath.endsWith('js') || reqPath.endsWith('css') || reqPath.endsWith('map'))){

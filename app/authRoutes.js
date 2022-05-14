@@ -61,11 +61,13 @@ passport.authenticate('google', { scope:[ 'email', 'profile' ] }),
 router.get('/google/return',
   // Issue #37 - Workaround for Express router module stripping the full url, causing assertion to fail 
     function(req, res, next) {
+        console.log("CHECKING URL ", req.originalUrl)
         req.url = req.originalUrl;
         next();
     }, 
     passport.authenticate( 'google'),
     function(req, res) {
+      console.log("AUTHENTICATING GOOGLE ")
         //console.log(req.user);
         res.redirect('/');
 });

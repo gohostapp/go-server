@@ -32,7 +32,8 @@ if(cluster.isMaster && process.env.NODE_ENV !== "dev") {
     var auth = require('./lib/auth.js').initPassport();;
     let passport = require('passport');
     let consts = require('./constants/consts')
-    
+    const HttpError = require('./errors/httpError');
+
 
     app.use("/public", express.static(path.join(__dirname, 'public')));
 
@@ -84,7 +85,7 @@ if(cluster.isMaster && process.env.NODE_ENV !== "dev") {
             res.statusCode = 204;
             return res.end();
         }else if(reqPath.indexOf('/api/documentation') == 0){
-            if(req.query.password === 'kn1t1fy' ||
+            if(req.query.password === 'g0ho5tt' ||
                   (reqPath.endsWith('js') || reqPath.endsWith('css') || reqPath.endsWith('map'))){
                  next();
               }else {

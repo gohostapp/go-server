@@ -3,7 +3,10 @@ var express = require('express')
   , passport = require('passport');
   var GoogleStrategy = require( 'passport-google-oauth2' ).Strategy;
 
-let userService = require("../services/userService")
+let userService = require("../services/userService");
+
+const jwt = require('jsonwebtoken');
+
 
 // GET /auth/steam
 //   Use passport.authenticate() as route middleware to authenticate the
@@ -67,7 +70,10 @@ router.get('/google/return',
     passport.authenticate( 'google'),
     function(req, res) {
         //console.log(req.user);
-        res.redirect(process.env.DASHBOARD_URI+`?cookie=${req.headers.cookie}`);
+        let token = jwt.sign({
+            data: req.user
+          }, process.env.JWT_SECRET, { expiresIn: "10h" });
+        res.redirect(process.env.DASHBOARD_URI+`?jwt=${token}`);
 });
 
 

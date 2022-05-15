@@ -26,10 +26,10 @@ if(cluster.isMaster && process.env.NODE_ENV !== "dev") {
     let path = require('path');
     let app = express();
     let session = require('express-session');
-    var redisStore = require('connect-redis')(session);
-    var redisUtil = require('./lib/redis.js');
+    //var redisStore = require('connect-redis')(session);
+    //var redisUtil = require('./lib/redis.js');
     var util = require('./lib/utils');
-    var auth = require('./lib/auth.js').initPassport();;
+    var auth = require('./lib/auth.js').initPassport();
     let passport = require('passport');
     let consts = require('./constants/consts')
     const HttpError = require('./errors/httpError');
@@ -44,16 +44,16 @@ if(cluster.isMaster && process.env.NODE_ENV !== "dev") {
     app.set('views', __dirname + '/views');
     app.set('view engine', 'ejs');
 
-    var client = redisUtil.connection;
+//    var client = redisUtil.connection;
 
-    app.use(session({
-        secret: 'unbreakable-secret',
-        name: 'sid',
-        store: new redisStore({host: process.env.REDIS_URI, client: client, ttl: 36000}),
-        resave: false,
-        saveUninitialized: false,
-        rolling: true
-    }));
+    // app.use(session({
+    //     secret: 'unbreakable-secret',
+    //     name: 'sid',
+    //     store: new redisStore({host: process.env.REDIS_URI, client: client, ttl: 36000}),
+    //     resave: false,
+    //     saveUninitialized: false,
+    //     rolling: true
+    // }));
 
 
     app.use(function(req,res,next) {
@@ -102,7 +102,7 @@ if(cluster.isMaster && process.env.NODE_ENV !== "dev") {
     app.use(passport.session());
 
     app.use('/api/documentation', express.static(__dirname + '/public/apidoc'));
-    app.use("/server", require('./app/awsRoutes'));
+    app.use("/server", passport.authenticate('jwt', { session: false }), require('./app/awsRoutes'));
     app.use("/auth", require('./app/authRoutes'));
     
   
@@ -116,7 +116,9 @@ if(cluster.isMaster && process.env.NODE_ENV !== "dev") {
         res.render('index', { user: req.user });
       });
       
-    app.get('/account', util.ensureAuthenticated, function(req, res){
+    app.get('/account', passport.authenticate('jwt', { session: false }), function(req, res){
+        console.log(" ==============   ");
+        console.log(req.user)
         res.render('account', { user: req.user });
     });
     

@@ -50,7 +50,7 @@ let bodyParserValidator = require('express-body-parser-validator').hasReqParam
 * @apiUse Forbidden
 * @apiSampleRequest off
 */
-router.post('/start', [util.ensureAuthenticated, express.json(), bodyParserValidator(["steam_server_token", "hostname", "rcon_password", "sv_password", "tickrate"])], function (req, res) {
+router.post('/start', [express.json(), bodyParserValidator(["steam_server_token", "hostname", "rcon_password", "sv_password", "tickrate"])], function (req, res) {
     awsService.createInstance(req, res).then((data) => {
         let result = util.getResponseObject(consts.RESPONSE_SUCCESS);
         result.data = data;
@@ -101,7 +101,7 @@ router.post('/start', [util.ensureAuthenticated, express.json(), bodyParserValid
 * @apiUse Forbidden
 * @apiSampleRequest off
 */
-router.get('/list', [util.ensureAuthenticated, express.json()], function (req, res) {
+router.get('/list', [express.json()], function (req, res) {
     awsService.listCsGoServers(req).then((data) => {
         let result = util.getResponseObject(consts.RESPONSE_SUCCESS);
         result.data = data;
@@ -143,7 +143,7 @@ router.get('/list', [util.ensureAuthenticated, express.json()], function (req, r
 * @apiUse Forbidden
 * @apiSampleRequest off
 */
-router.delete('/stop', [util.ensureAuthenticated, express.json(), bodyParserValidator(["server_id"])], function (req, res) {
+router.delete('/stop', [express.json(), bodyParserValidator(["server_id"])], function (req, res) {
     awsService.stopServer(req).then((data) => {
         let result = util.getResponseObject(consts.RESPONSE_SUCCESS);
         util.sendResponse(result, req, res);

@@ -25,7 +25,8 @@ if(cluster.isMaster && process.env.NODE_ENV !== "dev") {
     let express = require('express');
     let path = require('path');
     let app = express();
-    let session = require('express-session');
+    var cors = require('cors')
+
     //var redisStore = require('connect-redis')(session);
     //var redisUtil = require('./lib/redis.js');
     var util = require('./lib/utils');
@@ -33,7 +34,7 @@ if(cluster.isMaster && process.env.NODE_ENV !== "dev") {
     let passport = require('passport');
     let consts = require('./constants/consts')
     const HttpError = require('./errors/httpError');
-
+    let httpStatusCodes = require('./constants/httpStatusCodes');
 
     app.use("/public", express.static(path.join(__dirname, 'public')));
 
@@ -44,52 +45,25 @@ if(cluster.isMaster && process.env.NODE_ENV !== "dev") {
     app.set('views', __dirname + '/views');
     app.set('view engine', 'ejs');
 
-//    var client = redisUtil.connection;
-
-    // app.use(session({
-    //     secret: 'unbreakable-secret',
-    //     name: 'sid',
-    //     store: new redisStore({host: process.env.REDIS_URI, client: client, ttl: 36000}),
-    //     resave: false,
-    //     saveUninitialized: false,
-    //     rolling: true
-    // }));
+    var corsOptions = {
+        origin: function (origin, callback) {
+          if (consts.ALLOWED_ORIGINS.indexOf(origin) !== -1 || !origin) {
+            callback(null, true)
+          } else {
+            callback(new Error('Not allowed by CORS'))
+          }
+        }
+      }
 
 
     app.use(function(req,res,next) {
-        var isBrowser = false;
-        var reqOrigin = req.get("origin");
-        var allowedOrigin = reqOrigin;
-        if(req.headers['user-agent']){
-            var agent = req.headers['user-agent']?.toLowerCase();
-            if(reqOrigin && (agent.indexOf('safari') > 0 || agent.indexOf('mozilla') > 0 || agent.indexOf('applewebkit') > 0 || agent.indexOf('chrome') > 0)){
-                isBrowser = true;
-            }
-        }
-        if(isBrowser) {
-            if(consts.ALLOWED_ORIGINS.indexOf(reqOrigin) >= 0 || process.env.NODE_ENV == "dev"){
-                allowedOrigin = reqOrigin;
-            }else{
-                util.sendError(new httpError(httpStatusCodes.FORBIDDEN, { response: "Unauthorized Origin" }), req, res);
-                return;
-            }
-            res.header("Access-Control-Allow-Origin", allowedOrigin);
-            res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS,UPDATE');
-            res.header("Access-Control-Allow-Headers", "X-Requested-With,Content-Type,Cache-Control,Accept,set-cookie,withCredentials");
-            res.header("Access-Control-Allow-Credentials", true);
-            res.header("Access-Control-Expose-Headers", "set-cookie");
-            req.session.is_browser = true;
-        }
          var reqPath = req.path;
-         if (req.method === 'OPTIONS') {
-            res.statusCode = 204;
-            return res.end();
-        }else if(reqPath.indexOf('/api/documentation') == 0){
+         if(reqPath.indexOf('/api/documentation') == 0){
             if(req.query.password === 'g0ho5tt' ||
                   (reqPath.endsWith('js') || reqPath.endsWith('css') || reqPath.endsWith('map'))){
                  next();
               }else {
-                util.sendError(new httpError(httpStatusCodes.FORBIDDEN, { response: "Forbidden" }), req, res);
+                util.sendError(new HttpError(httpStatusCodes.FORBIDDEN, { response: "Forbidden" }), req, res);
                 return;
               }
         }else{
@@ -102,7 +76,7 @@ if(cluster.isMaster && process.env.NODE_ENV !== "dev") {
     app.use(passport.session());
 
     app.use('/api/documentation', express.static(__dirname + '/public/apidoc'));
-    app.use("/server", passport.authenticate('jwt', { session: false }), require('./app/awsRoutes'));
+    app.use("/server", [passport.authenticate('jwt', { session: false }), cors()], require('./app/awsRoutes'));
     app.use("/auth", require('./app/authRoutes'));
     
   

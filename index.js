@@ -55,7 +55,6 @@ if(cluster.isMaster && process.env.NODE_ENV !== "dev") {
         }
       }
 
-
     app.use(function(req,res,next) {
          var reqPath = req.path;
          if(reqPath.indexOf('/api/documentation') == 0){
@@ -76,7 +75,8 @@ if(cluster.isMaster && process.env.NODE_ENV !== "dev") {
     app.use(passport.session());
 
     app.use('/api/documentation', express.static(__dirname + '/public/apidoc'));
-    app.use("/server", [passport.authenticate('jwt', { session: false }), cors()], require('./app/awsRoutes'));
+    app.options('/server/*', cors(corsOptions))
+    app.use("/server", [passport.authenticate('jwt', { session: false }), cors(corsOptions)], require('./app/awsRoutes'));
     app.use("/auth", require('./app/authRoutes'));
     
   

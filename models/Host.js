@@ -31,6 +31,7 @@ hostSchema.methods.sanitized = function () {
     delete data["updated_at"];
     delete data["instance_id"];
     delete data["user"];
+    delete data["launch_params"]?.["steam_server_token"];
     return data;
 };
 

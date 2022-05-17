@@ -120,7 +120,8 @@ let listCsGoServers = (req) => {
             let params = {
                 InstanceIds: instanceIds,
                 Filters: [{
-                     "Values" : ["pending", "running"]
+                    "Name" : "instance-state-name",
+                    "Values" : ["pending", "running"]
                 }]
             };
             //add filters to params to fetch running instances only 

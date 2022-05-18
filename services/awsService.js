@@ -4,6 +4,7 @@ const ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
 let consts = require("../constants/consts")
 const hostDao = require("../dao/host")
 let HttpError = require("../errors/httpError");
+let httpStatusCodes = require('../constants/httpStatusCodes');
 
 let createInstance = (req, res) => {
     let data = req.body;
@@ -26,7 +27,7 @@ let createInstance = (req, res) => {
     return hostDao.fetchAvailableToken()
     .then((tokenRes)=>{
         if(!tokenRes || !tokenRes.value){
-            throw new HttpError(httpStatusCodes.NOT_FOUND, { response: 'Available GSLT Token' });   //todo: inform internal admin here
+            throw new HttpError(httpStatusCodes.NOT_FOUND, { response: 'No Available GSLT Token' });   //todo: inform internal admin here
         }else{
             tokenId = tokenRes.value._id;
             commands.push(`/home/ubuntu/launch-server ${tokenRes.value.token} ${data.tickrate}`);

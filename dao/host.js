@@ -19,5 +19,13 @@ module.exports.findServerById = (id) => {
 }
 
 module.exports.stopServer = (id) => {
-    return mongo.Host.findByIdAndUpdate(id, {$set : {is_active : false}});
+    return mongo.Host.findOneAndUpdate({_id : id}, {$set : {is_active : false}}, {rawResult: true, upsert : false, new : true});
+}
+
+module.exports.fetchAvailableToken = () => {
+    return mongo.Token.findOneAndUpdate({is_active : false}, {$set : {is_active : true}}, {rawResult: true, upsert : false, new : true})
+}
+
+module.exports.freeToken = (id) => {
+    return mongo.Token.findByIdAndUpdate(id, {$set : {is_active : false}});
 }

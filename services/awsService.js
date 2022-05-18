@@ -4,7 +4,6 @@ const ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
 let consts = require("../constants/consts")
 const hostDao = require("../dao/host")
 let HttpError = require("../errors/httpError");
-let httpStatusCodes = require("../constants/httpStatusCodes")
 
 let createInstance = (req, res) => {
     let data = req.body;
@@ -12,8 +11,7 @@ let createInstance = (req, res) => {
     let commands = [
         '#!/usr/bin/env bash',
         `/home/ubuntu/updateAutoExec "${data.hostname || "GoHost Private Server"}" "${data.rcon_password || "password"}" "${data.sv_password || ""}"`,
-        `/home/ubuntu/update-server`,
-        `/home/ubuntu/launch-server ${data.steam_server_token} ${data.tickrate}`,
+        `/home/ubuntu/update-server`
     ];
     let  instanceParams = {
         ImageId: process.env.CSGO_AMI_ID, 
@@ -23,24 +21,39 @@ let createInstance = (req, res) => {
         MinCount: 1,
         MaxCount: 1
     };
-    return createSecurityGroup().
-    then(securityGroupId => {
+    let  keyMaterial = "";
+    let tokenId = null
+    return hostDao.fetchAvailableToken()
+    .then((tokenRes)=>{
+        if(!tokenRes || !tokenRes.value){
+            throw new HttpError(httpStatusCodes.NOT_FOUND, { response: 'Available GSLT Token' });   //todo: inform internal admin here
+        }else{
+            tokenId = tokenRes.value._id;
+            commands.push(`/home/ubuntu/launch-server ${tokenRes.value.token} ${data.tickrate}`);
+            instanceParams["UserData"] = Buffer.from(commands.join("\n")).toString('base64');
+        }
+        return createSecurityGroup()
+    })
+    .then(securityGroupId => {
+        instanceParams["SecurityGroupIds"] = [securityGroupId];
         return createKeyPair(keyPairName)
-        .then((keyData) => {
-            instanceParams["SecurityGroupIds"] = [securityGroupId]
-            return ec2.runInstances(instanceParams).promise()
-            .then((instanceData) => {
-                return hostDao.createServer({
-                    user : req.user._id,
-                    instance_id : instanceData["Instances"][0].InstanceId,
-                    private_key : keyData.KeyMaterial,
-                    is_active : true,
-                    launch_params : data,
-                }).then( host => {
-                    return {instance_id : instanceData["Instances"][0].InstanceId};
-                })
-            })
-        })
+    })
+    .then((keyData) => {
+        keyMaterial = keyData.KeyMaterial
+        return ec2.runInstances(instanceParams).promise()
+    })
+    .then((instanceData) => {
+        return hostDao.createServer({
+            user : req.user._id,
+            instance_id : instanceData["Instances"][0].InstanceId,
+            private_key : keyMaterial,
+            is_active : true,
+            launch_params : data,
+            token: tokenId
+        }).then(host => {return instanceData;})
+    })
+    .then( instanceData => {
+        return {instance_id : instanceData["Instances"][0].InstanceId};
     })
     .catch((err) => {
         console.error(err);
@@ -85,18 +98,18 @@ let createSecurityGroup = () => {
                     VpcId: vpc
                 };
                 return ec2.createSecurityGroup(paramsSecurityGroup).promise()
-                .then((data) => {
-                    let securityGroupId = data.GroupId;
-                    let paramsIngress = {
-                        GroupId: securityGroupId,
-                        IpPermissions: consts.CSGO_SECURITY_GROUP_IP_PERMISSIONS
-                    };
-                    return ec2.authorizeSecurityGroupIngress(paramsIngress).promise()
-                    .then(()=>{
-                        return securityGroupId
-                    })
-                })
             }) 
+            .then((data) => {
+                let securityGroupId = data.GroupId;
+                let paramsIngress = {
+                    GroupId: securityGroupId,
+                    IpPermissions: consts.CSGO_SECURITY_GROUP_IP_PERMISSIONS
+                };
+                return ec2.authorizeSecurityGroupIngress(paramsIngress).promise()
+            })
+            .then(()=>{
+                return securityGroupId
+            })
        }
     })
     .catch((err) => {
@@ -109,16 +122,12 @@ let createSecurityGroup = () => {
 let listCsGoServers = (req) => {
     return hostDao.fetchUserServers(req.user._id)
     .then((hosts) => {
-        if(!hosts || hosts.length == 0)
-            throw new HttpError(httpStatusCodes.NOT_FOUND, { response: 'No Active server foundD' });
-        else{
-            return hosts;
-        }
+        return hosts;
     })
     .then((hosts)=>{
         let instanceIds = hosts.map(host => host.instance_id);
             let params = {
-                InstanceIds: instanceIds,
+            //    InstanceIds: instanceIds,     //if we have terminated an instance which is in Db, this filter throws an error
                 Filters: [{
                     "Name" : "instance-state-name",
                     "Values" : ["pending", "running"]
@@ -146,6 +155,9 @@ let listCsGoServers = (req) => {
                         }
                     }
                 }
+                //non blocking operation.
+                Promise.all(updatePromises)
+                .then(results => {});
                 return resultServers;
             })
     })
@@ -171,6 +183,9 @@ let stopServer = (req) => {
     })
     .then(() => {
         return hostDao.stopServer(hostId);
+    })
+    .then((hostRes) => {
+        return hostDao.freeToken(hostRes?.value?.token);
     })
     .catch((err) => {
         //if group not found, return null, and handle subsequently

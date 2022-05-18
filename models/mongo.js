@@ -3,8 +3,9 @@ var Schema = mongoose.Schema;
 
 // models
 
-var User = exports.User = require("./User.js").User;
-var Host = exports.Host = require("./Host.js").Host;
+exports.User = require("./User.js").User;
+exports.Host = require("./Host.js").Host;
+exports.Token = require("./Token.js").Token;
 
 let mongoOptions = {
     autoIndex: true,

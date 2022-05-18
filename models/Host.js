@@ -11,7 +11,8 @@ var hostSchema = new Schema({
     public_ip : {type: String,  trim: true},
     launch_params :  {type: Schema.Types.Mixed, default: {}},
     is_active : {type: Boolean, default: true},
-    private_key : {type: String,  trim: true}
+    private_key : {type: String,  trim: true},
+    token : {type: Schema.Types.ObjectId, required: true, ref: "Token"}
 });
 
 

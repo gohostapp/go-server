@@ -13,7 +13,6 @@ let bodyParserValidator = require('express-body-parser-validator').hasReqParam
 * @apiGroup Servers
 * @apiVersion 1.0.0
 *
-* @apiParam {String} steam_server_token                  This needs to be generated for your steam account. Navigate to `https://steamcommunity.com/dev/managegameservers`
 * @apiParam {String} hostname                            Your server name
 * @apiParam {String} rcon_password                       You will use this password in CsGo console to log on as server admin
 * @apiParam {String} sv_password                         Server password.
@@ -50,7 +49,7 @@ let bodyParserValidator = require('express-body-parser-validator').hasReqParam
 * @apiUse Forbidden
 * @apiSampleRequest off
 */
-router.post('/start', [express.json(), bodyParserValidator(["steam_server_token", "hostname", "rcon_password", "sv_password", "tickrate"])], function (req, res) {
+router.post('/start', [express.json(), bodyParserValidator(["hostname", "rcon_password", "sv_password", "tickrate"])], function (req, res) {
     awsService.createInstance(req, res).then((data) => {
         let result = util.getResponseObject(consts.RESPONSE_SUCCESS);
         result.data = data;

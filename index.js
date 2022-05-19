@@ -72,7 +72,7 @@ if(cluster.isMaster && process.env.NODE_ENV !== "dev") {
 
     
     app.use(passport.initialize());
-    app.use(passport.session());
+    //app.use(passport.session());
 
     app.use('/api/documentation', express.static(__dirname + '/public/apidoc'));
     app.options('/server/*', cors(corsOptions))

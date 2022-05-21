@@ -58,8 +58,9 @@ if(cluster.isMaster && process.env.NODE_ENV !== "dev") {
     app.use(function(req,res,next) {
          var reqPath = req.path;
          if(reqPath.indexOf('/api/documentation') == 0){
+           let allowedExtensions = ["js", "css", "map", "ico", "png"]
             if(req.query.password === 'g0ho5tt' ||
-                  (reqPath.endsWith('js') || reqPath.endsWith('css') || reqPath.endsWith('map'))){
+                  (reqPath.endsWith('js') || reqPath.endsWith('css') || reqPath.endsWith('map')  || reqPath.endsWith('ico') || reqPath.endsWith('png'))){
                  next();
               }else {
                 util.sendError(new HttpError(httpStatusCodes.FORBIDDEN, { response: "Forbidden" }), req, res);
@@ -77,6 +78,7 @@ if(cluster.isMaster && process.env.NODE_ENV !== "dev") {
     app.use('/api/documentation', express.static(__dirname + '/public/apidoc'));
     app.options('/server/*', cors(corsOptions))
     app.use("/server", [passport.authenticate('jwt', { session: false }), cors(corsOptions)], require('./app/awsRoutes'));
+    app.use("/user", [passport.authenticate('jwt', { session: false }), cors(corsOptions)], require('./app/userRoutes'));
     app.use("/auth", require('./app/authRoutes'));
     
   

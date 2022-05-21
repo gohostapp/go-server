@@ -19,7 +19,6 @@ let bodyParserValidator = require('express-body-parser-validator').hasReqParam
 * @apiParam {String} aws_region                          Pass the region code, where you want to start your server (closest to you will give you best ping.) List of regions here `https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-available-regions`
 * @apiParamExample {json} Request-Example:
 *     {
-*          "steam_server_token" : "725FDDC220F092DF860826BBD2D71D43",
 *           "hostname" : "deadfox server",
 *           "rcon_password": "rcon_pass_1",
 *           "sv_password" : "sv_pass_1",
@@ -58,7 +57,6 @@ router.post('/start', [express.json(), bodyParserValidator(["hostname", "rcon_pa
         util.sendError(err, req, res);
     });
 });
-
 
 
 
@@ -119,7 +117,7 @@ router.get('/list', [express.json()], function (req, res) {
 * @apiName Delete Server
 * @apiGroup Servers
 * @apiVersion 1.0.0
-*
+* @apiParam    {String} server_id                          _id received in list Server response.
 * @apiSuccess {String} status  success.
 * @apiSuccess {Number} response_code 200.
 * @apiSuccess {String} response_message Empty or error message.
@@ -132,7 +130,7 @@ router.get('/list', [express.json()], function (req, res) {
  *          "response_code": 200,
  *          "response_message": "",
  *          "data": {
- *              "instance_id": "i-xxxxxxxxxxxxxxxxx",
+ *              "server_id": "xxxxxxxxxxxxxxxxx",
  *           }
  * 
  *     }

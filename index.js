@@ -76,7 +76,8 @@ if(cluster.isMaster && process.env.NODE_ENV !== "dev") {
     //app.use(passport.session());
 
     app.use('/api/documentation', express.static(__dirname + '/public/apidoc'));
-    app.options('/server/*', cors(corsOptions))
+    app.options('/server/*', cors(corsOptions));
+    app.options('/user/*', cors(corsOptions));
     app.use("/server", [passport.authenticate('jwt', { session: false }), cors(corsOptions)], require('./app/awsRoutes'));
     app.use("/user", [passport.authenticate('jwt', { session: false }), cors(corsOptions)], require('./app/userRoutes'));
     app.use("/auth", require('./app/authRoutes'));

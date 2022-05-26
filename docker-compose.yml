@@ -1,0 +1,11 @@
+version: '3.8'
+services: 
+    app:
+        build: ./
+        restart: unless-stopped
+        env_file: ./.env
+        container_name: gohost-server
+        ports:
+            - $PORT:$PORT
+        stdin_open: true
+        tty: true

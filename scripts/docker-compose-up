@@ -1,1 +1,5 @@
-docker-compose --env-file ./.env up
+docker-compose -p local --env-file ./.env up -d
+docker-compose -p local down
+
+docker-compose -p dev --env-file ./.env up -d
+docker-compose -p dev down

@@ -4,7 +4,7 @@ services:
         build: ./
         restart: unless-stopped
         env_file: ./.env
-        container_name: gohost-server
+        container_name: $CONTAINER_NAME
         ports:
             - $PORT:$PORT
         stdin_open: true

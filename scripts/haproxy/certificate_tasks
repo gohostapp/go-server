@@ -1,0 +1,12 @@
+sudo certbot certonly --standalone --preferred-challenges http --http-01-port 80  -d web-dev.gohost.app
+sudo certbot certonly --standalone --preferred-challenges http --http-01-port 80  -d api-dev.gohost.app
+sudo certbot certonly --standalone --preferred-challenges http --http-01-port 80  -d api-local.gohost.app
+
+sudo cat /etc/letsencrypt/live/web-dev.gohost.app/fullchain.pem     /etc/letsencrypt/live/web-dev.gohost.app/privkey.pem     | sudo tee /etc/letsencrypt/live/web-dev.gohost.app/web-dev.gohost.app.pem
+
+sudo cat /etc/letsencrypt/live/api-dev.gohost.app/fullchain.pem     /etc/letsencrypt/live/api-dev.gohost.app/privkey.pem     | sudo tee /etc/letsencrypt/live/api-dev.gohost.app/api-dev.gohost.app.pem
+
+
+sudo cat /etc/letsencrypt/live/api-local.gohost.app/fullchain.pem     /etc/letsencrypt/live/api-local.gohost.app/privkey.pem     | sudo tee /etc/letsencrypt/live/api-local.gohost.app/api-local.gohost.app.pem
+
+
